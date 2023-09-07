@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkAuth } from '../middleware/check-auth.js';
+import checkAuth from '../middleware/check-auth.js';
 import { createVideo, deleteVideo, getVideo, getVideos, toggleLikeVideo, togglePublish, updateVideo } from '../controllers/videos.controller.js';
 
 const videosRouter = Router();

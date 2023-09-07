@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkAuth } from '../middleware/check-auth.js';
+import checkAuth from '../middleware/check-auth.js';
 import { getUserById, toggleFollow } from '../controllers/users.controller.js';
 
 const userRouter = Router();

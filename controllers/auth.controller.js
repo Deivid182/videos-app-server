@@ -1,30 +1,26 @@
-import { createAccessToken } from '../libs/verify-jwt.js';
 import User from '../models/user.model.js';
-
+import { createJwt } from '../libs/create-jwt.js';
 
 export const register = async (req, res) => {
-  const { email, username, password } = req.body;
+  try {
+    const { email, username, password } = req.body;
 
-  const userExist = await User.findOne({ email });
+    const userExist = await User.findOne({ email });
 
-  if (userExist) {
-    return res.status(400).json({ message: 'User already exists' });
+    if (userExist) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const newUser = new User({ email, username, password });
+
+    await newUser.save();
+
+    res.json({ message: 'Registered successfully' });
+  } catch (error) {
+    console.log(error, 'ERROR_REGISTER');
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  const newUser = new User({ email, username, password });
-
-
-  const userSaved = await newUser.save();
-  const token = await createAccessToken({ _id: userSaved._id });
-
-  res.cookie('jwt', token, {
-    httpOnly: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
-    secure: process.env.NODE_ENV === 'production',
-  })
-
-  res.json({ message: 'Registered successfully' });
-}
+};
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -35,45 +31,32 @@ export const login = async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if(!user) {
+  if (!user) {
     return res.status(400).json({ message: 'User not found' });
   }
 
   const isMatch = await user.comparePassword(password);
 
-  if(!isMatch) {
+  if (!isMatch) {
     return res.status(400).json({ message: 'Invalid credentials' });
   }
 
-  const token = await createAccessToken({
-    id: user._id,
+  const token = createJwt({
+    _id: user._id,
     username: user.username,
-    email: user.email
+    email: user.email,
   });
-
-  res.cookie('token', token, {
-    httpOnly: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
-    secure: process.env.NODE_ENV === 'production',
-  })
 
   res.json({
-    id: user._id,
-    username: user.username,
-    email: user.email
+    profile: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+    },
+    token
   });
-}
-
-export const logout = (req, res) => {
-  res.cookie('token', '', {
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true,
-    expires: new Date(0)
-  })
-  return res.json({ message: 'Logged out' });
-}
+};
 
 export const profile = async (req, res) => {
   res.json(req.user);
-}
+};
