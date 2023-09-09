@@ -1,8 +1,9 @@
 import Video from '../models/video.model.js';
+import User from '../models/user.model.js';
 
 export const createVideo = async (req, res) => {
   try {
-    const { url, title, description } = req.body;
+    const { url, title, description, isPublished } = req.body;
 
     if (!url || !title || !description) {
       return res.status(400).json({ message: 'All fields are required' });
@@ -12,10 +13,19 @@ export const createVideo = async (req, res) => {
       url,
       title,
       description,
+      isPublished
     });
 
     newVideo.userId = req.user._id;
     const storedVideo = await newVideo.save();
+    const user = await User.findById(req.user._id);
+
+    user.videos.push(storedVideo._id);
+    try {
+      await user.save();
+    } catch (error) {
+      res.json({ message: 'Something went wrong' });
+    }
 
     res.status(201).json(storedVideo);
   } catch (error) {
@@ -33,6 +43,17 @@ export const getVideos = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+export const getVideosByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const videos = await Video.find({ userId });
+    res.status(200).json(videos);
+  } catch (error) {
+    console.log(error, 'ERROR_GET_VIDEOS_BY_USER_ID');
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 export const getVideo = async (req, res) => {
   try {
@@ -67,6 +88,7 @@ export const updateVideo = async (req, res) => {
 
     video.title = req.body.title || video.title;
     video.description = req.body.description || video.description;
+    video.isPublished = req.body.isPublished || video.isPublished;
 
     const storedVideo = await video.save();
     res.status(200).json(storedVideo);
@@ -147,8 +169,9 @@ export const toggleLikeVideo = async (req, res) => {
 
     const updatedVideo = await video.save();
 
-    res.status(200).json(updatedVideo);
+    res.status(200).json({ updatedVideo, isLiked });
   } catch (error) {
     console.log(error, 'ERROR_TOGGLE_LIKE_VIDEO');
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

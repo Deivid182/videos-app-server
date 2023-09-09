@@ -18,6 +18,18 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  favoriteIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Video'
+    }
+  ],
+  videos: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Video'
+    }
+  ],
   followers: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -47,16 +47,10 @@ export const login = async (req, res) => {
     email: user.email,
   });
 
-  res.json({
-    profile: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-    token
-  });
+  res.json({token});
 };
 
 export const profile = async (req, res) => {
+
   res.json(req.user);
 };
