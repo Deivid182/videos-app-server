@@ -1,5 +1,4 @@
 import express from 'express'
-import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import authRouter from './routes/auth.routes.js'
 import videosRouter from './routes/videos.routes.js'
