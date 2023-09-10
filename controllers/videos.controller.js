@@ -75,7 +75,7 @@ export const getVideo = async (req, res) => {
 export const updateVideo = async (req, res) => {
   try {
     const { videoId } = req.params;
-
+    console.log(req.body)
     const video = await Video.findById(videoId);
 
     if (!video) {
@@ -88,9 +88,11 @@ export const updateVideo = async (req, res) => {
 
     video.title = req.body.title || video.title;
     video.description = req.body.description || video.description;
-    video.isPublished = req.body.isPublished || video.isPublished;
+    video.url = req.body.url || video.url;
+    video.isPublished = req.body.isPublished
 
     const storedVideo = await video.save();
+    console.log(storedVideo)
     res.status(200).json(storedVideo);
   } catch (error) {
     console.log(error, 'ERROR_UPDATE_VIDEO');
