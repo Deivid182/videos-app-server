@@ -15,7 +15,6 @@ app.use(cors({
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(morgan('dev'))
 app.use('/api/auth', authRouter)
 app.use('/api/videos', videosRouter)
 app.use('/api/users', userRouter)
